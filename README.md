@@ -3,3 +3,6 @@ Events website project that uses a web app (nodejs server) to make AJAX requests
 
 Hosted here!
 https://eventsapi-234322.appspot.com/
+
+To run yourself you will need to install node modules. They should be placed in a folder called 'node_modules' inside the Events2017 folder.
+Then simply run 'npm start' in terminal (in the Events2017 directory), then on your browser navigate to the url 'http://localhost:8090/'.
