@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- CSS -->
+<link rel="stylesheet" type="text/css" href="/css/Search_style.css">
+<!-- API source -->
+<script type="text/javascript" src="http://api.eventful.com/js/api"></script>
+
+<!-- Bootstrap/ajax/jquery -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.3/vue.js"></script>
+<!-- CSS -->
+<link rel="stylesheet" type="text/css" href="/css/default.css" />
+  <link rel="stylesheet" type="text/css" href="/css/component.css" />
+
+<head>
+<!-- menu -->
+<div class="container-fluid">
+  <div class="row">
+      <div class="col-xs-2">
+        <a class="btn btn-6 btn-6j" href="/events2017/index.html" role="button">Events2017 &raquo;</a>
+      </div>
+      <div class="col-xs-10">
+        <a class="btn btn-primary pull-right" onclick="auth()" role="button">Admin &raquo;</a>
+      </div>
+    </div>
+</div>
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+<!-- searchbar -->
+<div id="hide-searchbar">
+  
+    <div class="container-fluid">
+      
+      <div class="demo-flex-spacer"></div>
+      <div class="webflow-style-input">
+        <input id="date_search" placeholder="Search by event date" type = "date" >
+      </div>
+
+      <div class="webflow-style-input">
+            <input id="keyword_search" placeholder="Search by event keywords">
+            </div>
+            <div class="webflow-style-input">
+              <p>Search eventful API</p>
+        <input id="tickbox" type="checkbox">
+        <button id="srch" onclick="search(document.getElementById('date_search').value, document.getElementById('keyword_search').value, document.getElementById('tickbox').value);">Submit</button>
+      </div>
+    </div>
+</div>
+
+
+
+<!-- LOGIN -->
+<div id="id01" class="modal">
+  <form class="modal-content animate" action="javascript:login(document.getElementById('usrnm').value, document.getElementById('psswrd').value)">
+    <div class="modal fade">
+  </div>
+
+    <div class="container-fluid">
+      <div class="imgcontainer">
+      <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
+    </div>
+      <div class="modal-header">
+        </div>
+      <div class="form-group">
+        <input id = "usrnm" type="text" placeholder="Enter Username" name="uname" required><br /><br />
+        <input id = "psswrd" type="password" minlength="5" maxlength="16" placeholder="Enter Password" name="psw" required>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" id="submit_ev" name="submit" class="form-btn semibold">Login</button> 
+      </div>
+    </div>
+  </form>
+</div>
+
+
+
+
+
+<!-- EVENT DISPLAYING MODAL -->
+<div id="hide-me">
+  <div id="root">
+    <div id="my-modal" class="modal fade">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Details</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Name: {{ name }}</p>
+            <p>Description: {{ description }}</p>
+            <p>Date: {{ date }}</p>
+            <h4><a href="link" target="_blank">Event website</a></h4>
+            <p>Venue: {{ venuename }}</p>
+            <p>Postcode: {{ postcode }}</p>
+            <p>Town: {{ town }}</p>
+            <h6><a href="link" target="_blank">Venue website</a></h6>
+            <h2 id="imagebox">
+            <img class="img-responsive" src="link" class="img-rounded" align="right">
+            </h2>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="col-lg-12">
+        <li class="btn btn-primary btn-lg-12" v-for="item in events">
+            <span><button class="btn btn-primary btn-lg-12" @click="itemClicked(item)">{{ item.title }}<br />{{ item.date }}<br />{{ item.venuename }}</button></span>
+  <br />
+        </li>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $("#hide-me").hide();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// function to try and go to admin, server checks the browsers cookies for token
+function auth() {
+  var check = false;
+  $.ajax({
+        url: "/events2017/admin.html",
+        type: 'GET',
+        success: function (data) {
+            console.log('Success: ')
+            check = true;
+            window.location.href = '/events2017/admin.html';//go to admin
+        },
+        error: function (xhr, status, error) {
+          alert("Not logged in!");
+          console.log("not logged in!!");
+          document.getElementById('id01').style.display='block';//go to login modal
+        },
+    });
+
+  if (check) {
+    window.location.href = '/events2017/admin.html';
+    auth();
+  }
+}
+
+
+// if auth finds no cookie it opens the login modal, when details are submitted in there the login function is called
+function login(usernm, psswd) {
+    var details = {
+      'name': usernm,
+      'password': psswd
+    };
+    $.ajax({
+      url: "/authenticate",
+      data: details,
+      type: 'POST',
+      success: function (data) {
+          var ret = jQuery.parseJSON(data);
+          $('#lblResponse').html(ret.msg);
+          console.log('Success: ')
+          window.location.href = '/events2017/admin.html';
+      },
+      error: function (xhr, status, error) {
+        alert(error);
+          console.log('Error: ' + error.message);
+          $('#lblResponse').html('Error connecting to the server.');
+      },
+    });
+    $.ajax({
+        url: "/events2017/admin.html",
+        type: 'GET',
+        success: function (data) {
+            window.location.href = '/events2017/admin.html';
+        },
+        error: function (xhr, status, error) {
+        },
+    });
+}
+
+
+
+
+
+
+//when the search bar is clicked this function is called
+function search(date, keywords, eventfl) {
+  var bool = false;
+  if ($('#tickbox').is(":checked")) {
+      bool = true;
+  }
+  var keys = keywords.split();
+  console.log("DATE:" + date);
+  if (date ==  '') {
+    date = 'null';
+  }
+  console.log("KEYS:" + keys);
+  var params = "";
+  for(var i=0; i<keys.length; i++) {
+    params += keys[i]+"+";
+  }
+  params = params.substring(0, params.length - 1);
+  console.log(date, params);
+  if(keys == ''){
+    params = 'null';
+  }
+  if (bool) {
+    console.log("ApiDate search test");//https://api.eventful.com/docs/events/search
+    ////date = 'YYYY-MM-DD';
+    var year = date.substring(0, 4);
+    var month = date.substring(5, 7);
+    var day = date.substring(8, 10);
+    console.log('year: ' + year + ', month: ' + month + ', day: ' + day);
+    ////date_value = 'YYYYMMDD00-YYYYMMDD00';
+    var nextday = parseInt(day) + 1;//could make this roll over at end of month?????????
+    var date_value = year + month + day + '00-' + year + month + nextday + '00';
+    var oArgs = { app_key: "MSTxPs6PXkHJ7KS9",
+      q: keywords,
+        where: "United Kingdom",
+        "date": date,
+        page_size: 10, sort_order: "popularity",
+    };
+    if (keywords == 'null' && date_value == 'null') {
+      oArgs = { app_key: "MSTxPs6PXkHJ7KS9", where: "United Kingdom", page_size: 10, sort_order: "popularity",};
+    } else if (keywords == 'null') {
+      oArgs = { app_key: "MSTxPs6PXkHJ7KS9", where: "United Kingdom", "date": date_value, page_size: 10, sort_order: "popularity",};
+    } else if (date_value == 'null') {
+      oArgs = { app_key: "MSTxPs6PXkHJ7KS9", q: keywords, where: "United Kingdom", page_size: 10, sort_order: "popularity",};
+    }
+    EVDB.API.call("/events/search", oArgs, function(oData) {
+        console.log(oData);
+        var num_of_results = 10;
+        if (oData.total_items<num_of_results) {
+          num_of_results=oData.total_items;
+        }
+        var eventsArray = [];
+        for(var i = 0; i<num_of_results;i++) {
+          eventsArray.push( {
+              "event_id":oData.events.event[i].id,
+              "title":oData.events.event[i].title,
+              "blurb":oData.events.event[i].description,
+              "date":oData.events.event[i].start_time,
+              "url":oData.events.event[i].url,
+              "venuename":oData.events.event[i].venue_name,
+              "postcode":oData.events.event[i].postal_code,
+              "town":oData.events.event[i].venue_address,
+              "vurl":oData.events.event[i].venue_url,
+              "icon":"no icon field"
+                  //"venue_id":data.events[i].venue.venue_id
+              });
+        }
+         displayEvents(eventsArray);
+    });
+
+  } else {
+      var link = '';
+      if (date == 'null') {
+        link = "/events2017/events/search?search=" + params;
+      } else if (params == "null") {
+        link = "/events2017/events/search?date=" + date;
+      } else if (date == 'null' && params == "null") {
+        link = "/events2017/events/search?";
+      } else {
+        link = "/events2017/events/search?" + "date=" + date + "&" + "search=" + params;
+      }
+      //var link = "/events2017/events/search?date="+date+"&keywords="+params;//+"&eventfulapi="+bool;
+      console.log(link);
+      $.getJSON( link, function( data ) {
+        if(data.hasOwnProperty('events')) {
+          if (data.events.length==0) {
+            alert("no events matching the search criteria");
+          } else {
+
+            numberOfEvents = data.events.length;
+            var evnts = [];
+
+            for (i = 0; i<numberOfEvents; i++) {
+              var dateee = new Date(data.events[i].date);
+              console.log("dateee");
+              console.log(dateee);
+              evnts.push({"event_id":data.events[i].event_id,
+              "title":data.events[i].title,
+              "blurb":data.events[i].blurb,
+              "date":dateee,
+              "url":data.events[i].url,
+              "venuename":data.events[i].venue.name,
+                          "postcode":data.events[i].venue.postcode,
+                           "town":data.events[i].venue.town,
+                            "vurl":data.events[i].venue.url,
+                             "icon":data.events[i].venue.icon
+                              //"venue_id":data.events[i].venue.venue_id
+                            });
+            };
+          displayEvents(evnts);
+          }
+        } else {
+          displayEvents([]);
+        }
+
+      });
+    }
+};
+
+
+function displayEvents(evntarry) {
+  if (evntarry.length == 0) {
+    alert("no matching events");
+  }
+  $("#hide-me").show();
+  var vm = new Vue({
+      el: '#root',
+      data: {
+         name: '',
+         description: '',
+         price: 0,
+         events: evntarry
+      },
+      methods: {
+          itemClicked: function(item) {
+            this.name = item.title;
+            this.description = item.blurb;
+            this.date = item.date;
+            $("h4").html($("h4").html().replace("link", item.url));
+            $("h6").html($("h6").html().replace("link", item.vurl));
+            this.venuename = item.venuename;
+            this.postcode = item.postcode;
+            this.town = item.town;
+            $("h2").html($("h2").html().replace("link", item.icon));
+            $("#my-modal").modal('show');
+          }
+          
+      }
+  });
+}
+
+
+</script>
+</body>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<!-- Bootstrap/ajax/jquery -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.3/vue.js"></script>
+
+<!-- CSS -->
+<link rel="stylesheet" type="text/css" href="/css/admincss.css">
+<link rel="stylesheet" type="text/css" href="/css/default.css" />
+<link rel="stylesheet" type="text/css" href="/css/component.css" />
+
+<h1>
+  <!-- HEADER BUTTONS -->
+  <span>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="btn btn-6 btn-6j" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">Menu</a>
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <div class="container-fluid">
+        <li class="nav-item active">
+            <a class="btn btn-6 btn-6j" href="/events2017/index.html" role="button">Events2017 &raquo;</a>
+            <!-- <a class="btn btn-lg btn-primary" href="/events2017/index.html" role="button">Events2017 &raquo;</a> -->
+            <a class="btn btn-lg btn-primary" onclick="showEvents()" role="button">events &raquo;</a>
+            <a class="btn btn-lg btn-primary" onclick="getVenue()" role="button">venues &raquo;</a>
+            <a class="btn btn-lg btn-primary" onclick="show()" role="button">Add event &raquo;</a>
+            <a class="btn btn-lg btn-primary" onclick="showvenueform()" role="button">Add venue &raquo;</a>
+        </li>
+        </div>
+      </ul>
+    </div>
+  </div>
+    </nav>
+</span>
+</h1>
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+</head>
+<!-- VENUE DIV ID's -->
+<div id="hide-venue-divs">
+  <h3 id="imagebox">
+  <img class="img-responsive" src="link" class="img-rounded" align="right">
+  </h3>
+  <h4 id="linkbox">
+    <a href="link" target="_blank">Venue website</a>
+  </h4>
+</div>
+<script type="text/javascript">
+  $("#hide-venue-divs").hide();
+</script>
+
+
+<!-- EVENT DISPLAY -->
+<div id="hide-me">
+  <div id="root">
+    <div id="my-modal" class="modal fade">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Details</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Name: {{ name }}</p>
+            <p>Description: {{ description }}</p>
+            <p>Date: {{ date }}</p>
+            <h4><a href="link" target="_blank">Event website</a></h4>
+            <p>Venue: {{ venuename }}</p>
+            <p>Postcode: {{ postcode }}</p>
+            <p>Town: {{ town }}</p>
+            <h2 id="imagebox">
+            <img class="img-responsive" src="link" class="img-rounded" align="right">
+            </h2>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+        <li v-for="item in events">
+            <span><button class="btn btn-primary btn-xs" @click="itemClicked(item)">{{ item.title }}<br />{{ item.date }}<br />{{ item.venuename }}</button></span>
+  <br />
+        </li>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $("#hide-me").hide();
+</script>
+
+<!-- VENUE DISPLAY -->
+<div id="hide-ven">
+  <div class="container-fluid" id="rootven">
+    <div id="my-modal-ven" class="modal fade">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Details</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Name: {{ venuename }}</p>
+            <p>ID: {{ venue_id }}</p>
+            <h4><a href="link" target="_blank">Event website</a></h4>
+            <p>Postcode: {{ postcode }}</p>
+            <p>Town: {{ town }}</p>
+            <h2 id="imagebox">
+            <img class="img-responsive" src="link" class="img-rounded" align="right">
+            </h2>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+        <li v-for="item in events">
+            <span><button class="btn btn-primary btn-xs" @click="itemClicked(item)">{{ item.venuename }}<br />{{ item.venue_id }}</button></span>
+  <br />
+        </li>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $("#hide-ven").hide();
+</script>
+
+
+
+<body>
+
+
+
+<!-- EVENT FORM -->
+<div id="hide-form">
+  <div class="inner contact">
+    <div class="contact-form">
+        <form id="contact-us" action="javascript:addEvent(
+                document.getElementById('event_id').value, document.getElementById('event_title').value, document.getElementById('venue_id').value, document.getElementById('event_date').value, document.getElementById('event_url').value, document.getElementById('event_blurb').value);"> 
+            <!-- Left Inputs -->
+            <div class="col-xs-6 wow animated slideInLeft" data-wow-delay=".5s">
+                <input type="text" name="event_id" id="event_id" required="required" class="form" placeholder="ID" />
+                <input type="text" name="event_title" id="event_title" required="required" class="form" placeholder="Name" />
+                <input type="text" name="event_date" id="event_date" required="Must be in form ISO8601 form" class="form" placeholder="Date: YYYY-MM-DD" />
+                <input type="text" name="event_url" id="event_url" class="form" placeholder="Url" />
+            </div><!-- End Left Inputs -->
+            <!-- Right Inputs -->
+            <div class="col-xs-6 wow animated slideInRight" data-wow-delay=".5s">
+                <!-- Message -->
+                <textarea name="event_blurb" id="event_blurb" class="form textarea"  placeholder="Description"></textarea>
+            </div><!-- End Right Inputs -->
+            <!-- Bottom Submit -->
+            <div class="relative fullwidth col-xs-12">
+                Venue:
+                <input type="text" name="venue_id" id="venue_id" required="required" class="form" placeholder="ID" />
+                <button type="submit" id="submit_ev" name="submit" class="form-btn semibold">Add event</button> 
+              </div>
+            <!-- End Bottom Submit -->
+        </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- VENUE FORM -->
+<div id="hide-venueform">
+  <div class="inner contact">
+    <div class="contact-form">
+      <form id="contact-us" action="javascript:addVenue(document.getElementById('venue_name').value, document.getElementById('venue_postcode').value, document.getElementById('venue_town').value, document.getElementById('venue_url').value, document.getElementById('venue_icon').value);">
+            <div class="relative fullwidth col-xs-12">
+                Venue:
+                <input type="text" name="venue_name" id="venue_name" required="required" class="form" placeholder="Name" />
+                <input type="text" name="venue_postcode" id="venue_postcode" class="form" placeholder="Postcode" />
+                <input type="text" name="venue_town" id="venue_town" class="form" placeholder="Town" />
+                <input type="text" name="venue_url" id="venue_url" class="form" placeholder="Url" />
+                <input type="text" name="venue_icon" id="venue_icon" class="form" placeholder="Icon" />
+                <!-- Send Button -->
+                <button type="submit" id="submit_ve" name="submit" class="form-btn semibold">Add venue</button> 
+            </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script type="text/javascript">
+  //HIDES APPROPRIATE DIVS
+  function show() {
+    $("#hide-ven").hide();
+    $("#hide-me").hide();
+    $("#hide-venueform").hide();
+    $("#hide-form").show();
+  }
+  function showvenueform() {
+    $("#hide-ven").hide();
+    $("#hide-me").hide();
+    $("#hide-form").hide();
+    $("#hide-venueform").show();
+  }
+
+  //MAKES GET REQUEST FOR EVENTS
+  function showEvents() {
+    $("#hide-ven").hide();
+    $("#hide-form").hide();
+    $("#hide-venueform").hide();
+    $("#hide-me").hide();
+    $.getJSON( "/events2017/events", function( data ) {
+
+      numberOfEvents = data.events.length;
+      var evnts = [];
+
+      for (i = 0; i<numberOfEvents; i++) {
+        evnts.push({"event_id":data.events[i].event_id,
+        "title":data.events[i].title,
+        "blurb":data.events[i].blurb,
+        "date":data.events[i].date,
+        "url":data.events[i].url,
+        "venuename":data.events[i].venue.name,
+                              "postcode":data.events[i].venue.postcode,
+                               "town":data.events[i].venue.town,
+                                "url":data.events[i].venue.url,
+                                 "icon":data.events[i].venue.icon
+                                  //"venue_id":data.events[i].venue.venue_id
+                                });
+      };
+      displayEvents(evnts);
+    });
+  };
+  //DISPLAYS EVENTS
+  function displayEvents(evntarry) {
+            $("#hide-me").show();
+            $("#hide-venue-divs").hide();
+            $("#hide_block").hide();
+            $("#hide-ven").hide();
+            var vm = new Vue({
+                el: '#root',
+                data: {
+                   name: '',
+                   description: '',
+                   price: 0,
+                   events: evntarry
+                },
+                methods: {
+                    itemClicked: function(item) {
+                      this.name = item.title;
+                      this.description = item.blurb;
+                      this.date = item.date;
+                      $("h4").html($("h4").html().replace("link", item.url));
+                      this.venuename = item.venuename;
+                      this.postcode = item.postcode;
+                      this.town = item.town;
+                      $("h2").html($("h2").html().replace("link", item.icon));
+                      $("#my-modal").modal('show');
+                    }
+                    
+                }
+            });
+          }
+  //MAKES GET REQUEST FOR VENUES
+   function getVenue() {
+    $("#hide-me").hide();
+      $("#hide-form").hide();
+       $("#hide-venueform").hide();
+        $.getJSON( "/events2017/venues", function( data ) {
+          var vns = [];
+          for(var attr in data.venues){
+            vns.push({
+              "venuename":data.venues[attr].name,
+                "postcode":data.venues[attr].postcode,
+                 "town":data.venues[attr].town,
+                  "url":data.venues[attr].url,
+                   "icon":data.venues[attr].icon,
+                    "venue_id":attr
+                  });
+          }
+          displayVenues(vns);
+        });
+      }
+      //DISPLAY VENUES
+    function displayVenues(venuesArray) {
+      $("#hide-ven").show();
+            $("#hide-venue-divs").hide();
+            $("#hide_block").hide();
+            var vvm = new Vue({
+                el: '#rootven',
+                data: {
+                   venuename: '',
+                   postcode: '',
+                   town: '',
+                   events: venuesArray
+                },
+                methods: {
+                    itemClicked: function(item) {
+                      this.venuename = item.venuename;
+                      this.venue_id = item.venue_id;
+                      this.postcode = item.postcode;
+                      this.town = item.town;
+                      $("h4").html($("h4").html().replace("link", item.url));
+                      $("h2").html($("h2").html().replace("link", item.icon));
+                      $("#my-modal-ven").modal('show');
+                    }
+                    
+                }
+            });
+          }
+
+
+</script>
+      <script type="text/javascript">
+        $("#hide-form").hide();
+        $("#hide-venueform").hide();
+        $("#hide-ven").hide();
+      </script>
+        <script>
+          //ADDS THE EVENT FORM DETAILS TO THE EVENTS JSON DATABASE
+          function addEvent(event_id, title, v_venue_id, date, url, blurb) {
+              var event = {
+                "event_id":event_id,
+                "title":title,
+                "blurb":blurb,
+                "date":date,
+                "url":url,
+                  "venue_id":v_venue_id
+                }
+              var queryparams = "?";
+              for (var attr in event) {
+                  queryparams += attr + "=" + event[attr] + "&"
+              }
+              queryparams = queryparams.substring(0, queryparams.length - 1);
+              queryparams = queryparams.toString();
+
+              queryparams = "/events2017/events/add" + queryparams;
+              alert(queryparams);
+              $.ajax({
+                  url: queryparams,
+                  data: event,
+                  type: 'POST',
+                  success: function (data) {
+                      var ret = jQuery.parseJSON(data);
+                      $('#lblResponse').html(ret.msg);
+                      console.log('Success: ')
+                  },
+                  error: function (xhr, status, error) {
+                      console.log('Error: ' + error.message);
+                      $('#lblResponse').html('Error connecting to the server.');
+                  },
+              });
+          }
+//ADDS THE VENUE FORM DETAILS TO THE VENUES JSON DATABASE
+          function addVenue(v_name, v_postcode, v_town, v_url, v_icon) {
+
+
+              var venue = {
+                  "name":v_name,
+                  "postcode":v_postcode,
+                  "town":v_town,
+                  "url":v_url,
+                  "icon":v_icon,
+                  //"venue_id":_venue_id
+                  // }
+                }
+              var queryparams = "?" + 'auth_token=concertina&';
+              for (var attr in venue) {
+                  queryparams += attr + "=" + venue[attr] + "&"
+              }
+              queryparams = queryparams.substring(0, queryparams.length - 1);
+              console.log("queryparams = " + queryparams);
+              
+              queryparams = "/events2017/venues/add" + queryparams;
+              alert(queryparams);
+              $.ajax({
+                  url: queryparams,
+                  data: venue,
+                  type: 'POST',
+                  success: function (data) {
+                      var ret = jQuery.parseJSON(data);
+                      $('#lblResponse').html(ret.msg);
+                      console.log('Success: ')
+                  },
+                  error: function (xhr, status, error) {
+                      console.log('Error: ' + error.message);
+                      $('#lblResponse').html('Error connecting to the server.');
+                  },
+              });
+          }
+
+
+
+          </script>
+
+
+</body>
